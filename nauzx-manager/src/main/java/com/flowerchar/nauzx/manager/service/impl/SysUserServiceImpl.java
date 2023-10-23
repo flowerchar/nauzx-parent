@@ -1,5 +1,6 @@
 package com.flowerchar.nauzx.manager.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.flowerchar.nauzx.exception.NauException;
 import com.flowerchar.nauzx.manager.mapper.SysUserMapper;
@@ -26,6 +27,15 @@ public class SysUserServiceImpl implements SysUserService {
 
     @Override
     public LoginVo login(LoginDto loginDto) {
+
+        String captcha = loginDto.getCaptcha();
+        String key = loginDto.getCodeKey();
+
+        String redisCode = redisTemplate.opsForValue().get("user:validate" + key);
+        if (StrUtil.isEmpty(redisCode)||!StrUtil.equalsIgnoreCase(redisCode, captcha)){
+            throw new NauException(ResultCodeEnum.VALIDATECODE_ERROR);
+        }
+        redisTemplate.delete("user:validate"+key);
 
         String userName = loginDto.getUserName();
 
