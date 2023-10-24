@@ -61,4 +61,11 @@ public class SysUserServiceImpl implements SysUserService {
         loginVo.setToken(token);
         return loginVo;
     }
+
+    @Override
+    public SysUser getUserInfo(String token) {
+        String userJson = redisTemplate.opsForValue().get("user:login"+token);
+        SysUser sysUser = JSON.parseObject(userJson, SysUser.class);
+        return sysUser;
+    }
 }
